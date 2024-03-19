@@ -1,9 +1,6 @@
 package spelldnd.database.spells
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object Spells: Table("spells_ru"){
@@ -24,25 +21,25 @@ object Spells: Table("spells_ru"){
     private val dnd_class = Spells.text("dnd_class")
     private val archetype = Spells.text("archetype")
 
-    fun insert(spellsDTO: SpellsDTO) {
+    fun insert(spellDTO: SpellDTO) {
         transaction {
             Spells.insert {
-                it[slug] = spellsDTO.slug
-                it[name] = spellsDTO.name
-                it[desc] = spellsDTO.desc
-                it[higher_level] = spellsDTO.higher_level
-                it[range] = spellsDTO.range
-                it[components] = spellsDTO.components
-                it[material] = spellsDTO.material
-                it[ritual] = spellsDTO.ritual
-                it[duration] = spellsDTO.duration
-                it[concentration] = spellsDTO.concentration
-                it[casting_time] = spellsDTO.casting_time
-                it[level] = spellsDTO.level
-                it[level_int] = spellsDTO.level_int
-                it[school] = spellsDTO.school
-                it[dnd_class] = spellsDTO.dnd_class
-                it[archetype] = spellsDTO.archetype
+                it[slug] = spellDTO.slug
+                it[name] = spellDTO.name
+                it[desc] = spellDTO.desc
+                it[higher_level] = spellDTO.higher_level
+                it[range] = spellDTO.range
+                it[components] = spellDTO.components
+                it[material] = spellDTO.material
+                it[ritual] = spellDTO.ritual
+                it[duration] = spellDTO.duration
+                it[concentration] = spellDTO.concentration
+                it[casting_time] = spellDTO.casting_time
+                it[level] = spellDTO.level
+                it[level_int] = spellDTO.level_int
+                it[school] = spellDTO.school
+                it[dnd_class] = spellDTO.dnd_class
+                it[archetype] = spellDTO.archetype
             }
         }
     }
@@ -54,11 +51,11 @@ object Spells: Table("spells_ru"){
     }
 
 
-    fun fetchSpell(slug: String): SpellsDTO? {
+    fun fetchSpell(slug: String): SpellDTO? {
         return try{
             transaction {
                 val spellsModel = Spells.select { Spells.slug.eq(slug) }.single()
-                SpellsDTO(
+                SpellDTO(
                     slug = spellsModel[Spells.slug],
                     name = spellsModel[Spells.name],
                     desc = spellsModel[Spells.desc],
@@ -79,6 +76,37 @@ object Spells: Table("spells_ru"){
             }
         } catch (e: Exception) {
             null
+        }
+    }
+
+    fun fetchAll(): List<SpellDTO> {
+        return try {
+            transaction {
+                val spellsList = Spells.selectAll().map {
+                    SpellDTO(
+                        slug = it[slug],
+                        name = it[name],
+                        desc = it[desc],
+                        higher_level = it[higher_level],
+                        range = it[range],
+                        components = it[components],
+                        material = it[material],
+                        ritual = it[ritual],
+                        duration = it[Spells.duration],
+                        concentration = it[concentration],
+                        casting_time = it[casting_time],
+                        level = it[level],
+                        level_int = it[level_int],
+                        school = it[school],
+                        dnd_class = it[dnd_class],
+                        archetype = it[archetype]
+                    )
+                }
+                println(spellsList::class.simpleName)
+                spellsList
+            }
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 }

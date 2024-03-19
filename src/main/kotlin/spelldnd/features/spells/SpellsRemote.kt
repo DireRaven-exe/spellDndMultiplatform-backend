@@ -3,7 +3,7 @@ package spelldnd.features.spells
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SpellsReceiveRemote(
+data class SpellsRequest(
     val slug: String,
     val name: String,
     val desc: String,
@@ -23,7 +23,7 @@ data class SpellsReceiveRemote(
 )
 
 @Serializable
-data class SpellsResponseRemote(
+data class SpellsResponse(
     val slug: String,
     val name: String,
     val desc: String,
@@ -40,4 +40,13 @@ data class SpellsResponseRemote(
     val school: String,
     val dnd_class: String,
     val archetype: String,
+)
+
+@Serializable
+data class FetchSpellsRequest(
+    val searchQuery: String
+)
+
+data class FetchSpellsResponse(
+    val result: List<SpellsResponse>
 )

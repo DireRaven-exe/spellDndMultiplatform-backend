@@ -5,22 +5,24 @@ import io.ktor.server.routing.*
 
 fun Application.configureSpellsRouting() {
     routing {
-        post("/spells-ru/add-spell") {
-            val spellsController = SpellsController(call)
-            spellsController.addSpell()
+        post("/spells/create") {
+            SpellsController(call).createSpell()
         }
-        post("/spells-ru/add-spells") {
-            val spellsController = SpellsController(call)
-            spellsController.addSpells()
-            spellsController.deleteSpell()
+        post("/spells/add-spells") {
+            SpellsController(call).addSpells()
         }
-        post("/spells-ru/delete-spell") {
-            val spellsController = SpellsController(call)
-            spellsController.deleteSpell()
+        post("/spells/delete") {
+            SpellsController(call).deleteSpell()
         }
-        post("/spells-ru/delete-spells") {
-            val spellsController = SpellsController(call)
-            spellsController.deleteSpells()
+        post("/spells/delete-spells") {
+            SpellsController(call).deleteSpells()
+        }
+        post("/spells/search") {
+            SpellsController(call).performSearch()
+        }
+
+        get("/spells") {
+            SpellsController(call).getSpells()
         }
 
     }

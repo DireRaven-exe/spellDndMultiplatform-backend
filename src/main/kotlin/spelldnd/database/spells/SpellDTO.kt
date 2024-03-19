@@ -1,6 +1,9 @@
 package spelldnd.database.spells
 
-class SpellsDTO (
+import kotlinx.serialization.Serializable
+
+@Serializable
+class SpellDTO(
     val slug: String,
     val name: String,
     val desc: String,

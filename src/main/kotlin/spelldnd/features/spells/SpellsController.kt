@@ -6,12 +6,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import spelldnd.database.spells.Spells
-import spelldnd.database.spells.SpellsDTO
-import java.util.*
+import spelldnd.database.spells.SpellDTO
+import spelldnd.utils.TokenCheck
 
 class SpellsController(private val call: ApplicationCall) {
-    suspend fun addSpell() {
-        val receive = call.receive<SpellsReceiveRemote>()
+    suspend fun createSpell() {
+        val receive = call.receive<SpellsRequest>()
 
         if (receive.slug.isEmpty()) {
             call.respond(HttpStatusCode.BadRequest, "slug is empty")
@@ -24,7 +24,7 @@ class SpellsController(private val call: ApplicationCall) {
 
             try {
                 Spells.insert(
-                    SpellsDTO(
+                    SpellDTO(
                         slug = receive.slug,
                         name = receive.name,
                         desc = receive.desc,
@@ -53,7 +53,7 @@ class SpellsController(private val call: ApplicationCall) {
 
 
     suspend fun addSpells() {
-        val spellsList = call.receive<List<SpellsReceiveRemote>>()
+        val spellsList = call.receive<List<SpellsRequest>>()
 
         if (spellsList.isEmpty()) {
             call.respond(HttpStatusCode.BadRequest, "Empty list of spells")
@@ -72,7 +72,7 @@ class SpellsController(private val call: ApplicationCall) {
             } else {
                 try {
                     Spells.insert(
-                        SpellsDTO(
+                        SpellDTO(
                             slug = spell.slug,
                             name = spell.name,
                             desc = spell.desc,
@@ -102,7 +102,7 @@ class SpellsController(private val call: ApplicationCall) {
     }
 
     suspend fun deleteSpell() {
-        val receive = call.receive<SpellsReceiveRemote>()
+        val receive = call.receive<SpellsRequest>()
 
         val spell = Spells.fetchSpell(receive.slug)
         if (spell == null) {
@@ -115,7 +115,7 @@ class SpellsController(private val call: ApplicationCall) {
     }
 
     suspend fun deleteSpells() {
-        val receive = call.receive<List<SpellsReceiveRemote>>()
+        val receive = call.receive<List<SpellsRequest>>()
 
         if (receive.isEmpty()) {
             call.respond(HttpStatusCode.BadRequest, "Empty list of spells")
@@ -138,5 +138,23 @@ class SpellsController(private val call: ApplicationCall) {
         }
 
         call.respond("Spells deleted")
+    }
+
+    suspend fun performSearch() {
+        val request = call.receive<FetchSpellsRequest>()
+
+        if (request.searchQuery.isBlank()) {
+            call.respond(Spells.fetchAll())
+        } else {
+            call.respond(Spells.fetchAll().filter {
+                    it.slug.contains(request.searchQuery, ignoreCase = true) ||
+                    it.name.contains(request.searchQuery, ignoreCase = true) ||
+                    it.desc.contains(request.searchQuery, ignoreCase = true)
+            })
+        }
+    }
+
+    suspend fun getSpells() {
+        call.respond(Spells.fetchAll().toList())
     }
 }
