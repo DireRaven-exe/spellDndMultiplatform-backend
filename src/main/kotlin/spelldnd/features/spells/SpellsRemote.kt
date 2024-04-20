@@ -47,6 +47,6 @@ data class FetchSpellsRequest(
     val searchQuery: String
 )
 
-data class FetchSpellsResponse(
-    val result: List<SpellsResponse>
+data class FetchSpellRequest(
+    val slug: String
 )

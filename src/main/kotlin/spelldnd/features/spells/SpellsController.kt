@@ -3,11 +3,11 @@ package spelldnd.features.spells
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
+import io.ktor.server.response.respond
+import kotlinx.serialization.builtins.serializer
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import spelldnd.database.spells.Spells
 import spelldnd.database.spells.SpellDTO
-import spelldnd.utils.TokenCheck
 
 class SpellsController(private val call: ApplicationCall) {
     suspend fun createSpell() {
@@ -156,5 +156,19 @@ class SpellsController(private val call: ApplicationCall) {
 
     suspend fun getSpells() {
         call.respond(Spells.fetchAll().toList())
+    }
+
+    suspend fun getSpell(slug: String) {
+        if (slug.isBlank()) {
+            call.respond(HttpStatusCode.BadRequest, "Slug parameter is missing")
+            return
+        }
+
+        val spell = Spells.fetchSpell(slug)
+        if (spell == null) {
+            call.respond(HttpStatusCode.NotFound, "Spell not found")
+        } else {
+            call.respond(spell)
+        }
     }
 }
