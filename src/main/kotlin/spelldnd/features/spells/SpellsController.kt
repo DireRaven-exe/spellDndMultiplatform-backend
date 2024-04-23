@@ -3,11 +3,10 @@ package spelldnd.features.spells
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import io.ktor.server.response.respond
-import kotlinx.serialization.builtins.serializer
+import io.ktor.server.response.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import spelldnd.database.spells.Spells
 import spelldnd.database.spells.SpellDTO
+import spelldnd.database.spells.Spells
 
 class SpellsController(private val call: ApplicationCall) {
     suspend fun createSpell() {
@@ -142,14 +141,51 @@ class SpellsController(private val call: ApplicationCall) {
 
     suspend fun performSearch() {
         val searchQuery = call.parameters["searchQuery"] ?: ""
+        val searchProperties = call.parameters.getAll("searchProperty")?.toSet() ?: emptySet()
+
         if (searchQuery.isBlank()) {
             call.respond(Spells.fetchAll())
         } else {
-            call.respond(Spells.fetchAll().filter {
-                it.slug.contains(searchQuery, ignoreCase = true) ||
-                        it.name.contains(searchQuery, ignoreCase = true) ||
-                        it.desc.contains(searchQuery, ignoreCase = true)
-            })
+            val filteredSpells = Spells.fetchAll().filter { spell ->
+                if (searchProperties.isNotEmpty()) {
+                    searchProperties.any { property ->
+                        when (property) {
+                            "name" -> spell.name.contains(searchQuery, ignoreCase = true)
+                            "desc" -> spell.desc.contains(searchQuery, ignoreCase = true)
+                            "higher_level" -> spell.higher_level.contains(searchQuery, ignoreCase = true)
+                            "range" -> spell.range.contains(searchQuery, ignoreCase = true)
+                            "components" -> spell.components.contains(searchQuery, ignoreCase = true)
+                            "material" -> spell.material.contains(searchQuery, ignoreCase = true)
+                            "ritual" -> spell.ritual.contains(searchQuery, ignoreCase = true)
+                            "duration" -> spell.duration.contains(searchQuery, ignoreCase = true)
+                            "concentration" -> spell.concentration.contains(searchQuery, ignoreCase = true)
+                            "casting_time" -> spell.casting_time.contains(searchQuery, ignoreCase = true)
+                            "level" -> spell.level.contains(searchQuery, ignoreCase = true)
+                            "school" -> spell.school.contains(searchQuery, ignoreCase = true)
+                            "dnd_class" -> spell.dnd_class.contains(searchQuery, ignoreCase = true)
+                            "archetype" -> spell.archetype.contains(searchQuery, ignoreCase = true)
+                            else -> false
+                        }
+                    }
+                } else {
+                    // Если свойство не выбрано, ищем по всем свойствам
+                    spell.name.contains(searchQuery, ignoreCase = true) ||
+                            spell.desc.contains(searchQuery, ignoreCase = true) ||
+                            spell.higher_level.contains(searchQuery, ignoreCase = true) ||
+                            spell.range.contains(searchQuery, ignoreCase = true) ||
+                            spell.components.contains(searchQuery, ignoreCase = true) ||
+                            spell.material.contains(searchQuery, ignoreCase = true) ||
+                            spell.ritual.contains(searchQuery, ignoreCase = true) ||
+                            spell.duration.contains(searchQuery, ignoreCase = true) ||
+                            spell.concentration.contains(searchQuery, ignoreCase = true) ||
+                            spell.casting_time.contains(searchQuery, ignoreCase = true) ||
+                            spell.level.contains(searchQuery, ignoreCase = true) ||
+                            spell.school.contains(searchQuery, ignoreCase = true) ||
+                            spell.dnd_class.contains(searchQuery, ignoreCase = true) ||
+                            spell.archetype.contains(searchQuery, ignoreCase = true)
+                }
+            }
+            call.respond(filteredSpells)
         }
     }
 
