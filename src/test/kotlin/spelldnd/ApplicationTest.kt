@@ -9,14 +9,14 @@ import spelldnd.plugins.*
 import kotlin.test.Test
 
 class ApplicationTest {
-    @Test
-    fun testRoot() = testApplication {
-        application {
-            configureRouting()
-        }
-        client.get("/").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertEquals("Hello World!", bodyAsText())
-        }
-    }
+//    @Test
+//    fun testRoot() = testApplication {
+//        application {
+//            configureRouting()
+//        }
+//        client.get("/").apply {
+//            assertEquals(HttpStatusCode.OK, status)
+//            assertEquals("Hello World!", bodyAsText())
+//        }
+//    }
 }

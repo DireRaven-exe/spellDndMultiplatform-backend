@@ -19,7 +19,7 @@ fun Application.configureSpellsRouting() {
         post("/spells/delete-spells") {
             SpellsController(call).deleteSpells()
         }
-        post("/spells/search") {
+        get("/spells/search") {
             SpellsController(call).performSearch()
         }
 
