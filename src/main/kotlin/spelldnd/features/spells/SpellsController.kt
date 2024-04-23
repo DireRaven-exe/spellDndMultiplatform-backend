@@ -141,15 +141,14 @@ class SpellsController(private val call: ApplicationCall) {
     }
 
     suspend fun performSearch() {
-        val request = call.receive<FetchSpellsRequest>()
-
-        if (request.searchQuery.isBlank()) {
+        val searchQuery = call.parameters["searchQuery"] ?: ""
+        if (searchQuery.isBlank()) {
             call.respond(Spells.fetchAll())
         } else {
             call.respond(Spells.fetchAll().filter {
-                    it.slug.contains(request.searchQuery, ignoreCase = true) ||
-                    it.name.contains(request.searchQuery, ignoreCase = true) ||
-                    it.desc.contains(request.searchQuery, ignoreCase = true)
+                it.slug.contains(searchQuery, ignoreCase = true) ||
+                        it.name.contains(searchQuery, ignoreCase = true) ||
+                        it.desc.contains(searchQuery, ignoreCase = true)
             })
         }
     }
