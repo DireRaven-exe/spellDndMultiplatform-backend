@@ -15,7 +15,7 @@ fun main() {
         //throw Exception("Hi There!")
 
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/spelldnd",
+            url = "jdbc:postgresql://host.docker.internal:5432/spelldnd",
             driver = "org.postgresql.Driver",
             user = "postgres",
             password = "rfvsikjdrf1"
@@ -24,6 +24,7 @@ fun main() {
         embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = Application::module)
             .start(wait = true)
     } catch (e: Exception) {
+	println("can't connect to db")
         file.appendText(e.toString() + "\n")
     }
 }
